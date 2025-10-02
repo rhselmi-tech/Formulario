@@ -107,8 +107,20 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nome_pai">Nome do pai (igual no RG)</label>
-                        <input type="text" id="nome_pai" name="nome_pai" placeholder="Nome do pai">
+                        <label>Nome do pai (igual no RG) *</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="tem_pai" value="sim" onchange="togglePaiField()" required>
+                                Informar nome do pai
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tem_pai" value="nao" onchange="togglePaiField()" required>
+                                Não consta/Não tem
+                            </label>
+                        </div>
+                        <div id="paiField" style="display: none; margin-top: 10px;">
+                            <input type="text" id="nome_pai" name="nome_pai" placeholder="Nome completo do pai">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -128,14 +140,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Tem parente ou conhecido que trabalhe na Selmi, Macarrão Galo ou Todeschini?</label>
+                    <label>Tem parente ou conhecido que trabalhe na Selmi, Macarrão Galo ou Todeschini? *</label>
                     <div class="radio-group">
                         <label class="radio-label">
-                            <input type="radio" name="parente_empresa" value="sim" onchange="toggleParenteField()">
+                            <input type="radio" name="parente_empresa" value="sim" onchange="toggleParenteField()" required>
                             Sim
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="parente_empresa" value="nao" onchange="toggleParenteField()">
+                            <input type="radio" name="parente_empresa" value="nao" onchange="toggleParenteField()" required>
                             Não
                         </label>
                     </div>
