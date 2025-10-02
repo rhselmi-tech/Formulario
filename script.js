@@ -32,6 +32,21 @@ function toggleParenteField() {
     }
 }
 
+// Função para mostrar/ocultar campo do pai
+function togglePaiField() {
+    const temPai = document.querySelector('input[name="tem_pai"]:checked');
+    const paiField = document.getElementById('paiField');
+    
+    if (temPai && temPai.value === 'sim') {
+        paiField.style.display = 'block';
+        document.getElementById('nome_pai').required = true;
+    } else {
+        paiField.style.display = 'none';
+        document.getElementById('nome_pai').required = false;
+        document.getElementById('nome_pai').value = '';
+    }
+}
+
 // Função para mostrar/ocultar campo da CNH
 function toggleCnhField() {
     const possuiCnh = document.querySelector('input[name="possui_cnh"]:checked');
@@ -235,7 +250,7 @@ function collectFormData() {
     // Coletar outros campos importantes diretamente
     const fieldsToCollect = [
         'email', 'telefone', 'endereco', 'cpf', 'rg', 'cidade_rg', 'data_nascimento', 'pis', 
-        'cidade_nascimento', 'estado_civil', 'nome_pai', 'nome_mae', 
+        'cidade_nascimento', 'estado_civil', 'tem_pai', 'nome_pai', 'nome_mae', 
         'whatsapp', 'escolaridade', 'vaga_especifica', 'qual_vaga',
         'parente_empresa', 'nome_parente', 'possui_cnh', 'categoria_cnh',
         'veiculo_proprio', 'tipo_veiculo', 'outras_informacoes'
@@ -356,6 +371,15 @@ function createFormattedMessage(formData) {
         if (formData.cpf && formData.cpf.trim()) message += `• CPF: ${formData.cpf}\n`;
         if (formData.data_nascimento && formData.data_nascimento.trim()) message += `• Data de Nascimento: ${formData.data_nascimento}\n`;
         if (formData.estado_civil && formData.estado_civil.trim()) message += `• Estado Civil: ${formData.estado_civil}\n`;
+        
+        // Nome do Pai - obrigatório
+        if (formData.tem_pai === 'sim' && formData.nome_pai && formData.nome_pai.trim()) {
+            message += `• Nome do Pai: ${formData.nome_pai}\n`;
+        } else if (formData.tem_pai === 'nao') {
+            message += `• Nome do Pai: Não consta/Não tem\n`;
+        }
+        
+        if (formData.nome_mae && formData.nome_mae.trim()) message += `• Nome da Mãe: ${formData.nome_mae}\n`;
         message += `\n`;
         
         // VAGA DE INTERESSE
@@ -425,9 +449,12 @@ function createFormattedMessage(formData) {
         message += `\n`;
         
         // PARENTE NA EMPRESA
-        if (formData.parente_empresa === 'sim' && formData.nome_parente) {
+        if (formData.parente_empresa === 'sim' && formData.nome_parente && formData.nome_parente.trim()) {
             message += `👨‍👩‍👧‍� *PARENTE NA EMPRESA*\n`;
-            message += `• ${formData.nome_parente}\n\n`;
+            message += `• SIM - ${formData.nome_parente}\n\n`;
+        } else if (formData.parente_empresa === 'nao') {
+            message += `👨‍👩‍👧‍👦 *PARENTE/CONHECIDO NA EMPRESA*\n`;
+            message += `• NÃO - Não tenho parentes/conhecidos na empresa\n\n`;
         }
         
         // OUTRAS INFORMAÇÕES
@@ -542,6 +569,32 @@ function handleFormSubmit(event) {
     if (disponibilidade.length === 0) {
         alert('Por favor, selecione pelo menos uma opção de disponibilidade de horário.');
         isFormValid = false;
+    }
+    
+    // Validar campo obrigatório do pai
+    const temPai = form.querySelector('input[name="tem_pai"]:checked');
+    if (!temPai) {
+        alert('Por favor, selecione se deseja informar o nome do pai ou se não consta.');
+        isFormValid = false;
+    } else if (temPai.value === 'sim') {
+        const nomePai = form.querySelector('#nome_pai');
+        if (!nomePai || !nomePai.value.trim()) {
+            alert('Por favor, preencha o nome do pai ou selecione "Não consta/Não tem".');
+            isFormValid = false;
+        }
+    }
+    
+    // Validar campo obrigatório de parente na empresa
+    const parenteEmpresa = form.querySelector('input[name="parente_empresa"]:checked');
+    if (!parenteEmpresa) {
+        alert('Por favor, informe se tem parente ou conhecido que trabalhe na empresa (campo obrigatório).');
+        isFormValid = false;
+    } else if (parenteEmpresa.value === 'sim') {
+        const nomeParente = form.querySelector('#nome_parente');
+        if (!nomeParente || !nomeParente.value.trim()) {
+            alert('Por favor, informe o nome completo do parente/conhecido na empresa.');
+            isFormValid = false;
+        }
     }
     
     if (!isFormValid) {
