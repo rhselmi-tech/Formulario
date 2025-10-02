@@ -119,6 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const telefoneField = document.getElementById('telefone');
+    if (telefoneField) {
+        telefoneField.addEventListener('input', function(e) {
+            e.target.value = formatPhone(e.target.value);
+        });
+    }
+
     if (pisField) {
         pisField.addEventListener('input', function(e) {
             e.target.value = formatPIS(e.target.value);
@@ -367,6 +374,7 @@ function createFormattedMessage(formData) {
         message += `• Nome Completo: ${formData.nome_completo || 'Não informado'}\n`;
         if (formData.email && formData.email.trim()) message += `• Email: ${formData.email}\n`;
         if (formData.telefone && formData.telefone.trim()) message += `• Telefone: ${formData.telefone}\n`;
+        if (formData.whatsapp && formData.whatsapp.trim()) message += `• WhatsApp: ${formData.whatsapp}\n`;
         if (formData.endereco && formData.endereco.trim()) message += `• Endereço: ${formData.endereco}\n`;
         if (formData.cpf && formData.cpf.trim()) message += `• CPF: ${formData.cpf}\n`;
         if (formData.data_nascimento && formData.data_nascimento.trim()) message += `• Data de Nascimento: ${formData.data_nascimento}\n`;
