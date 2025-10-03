@@ -585,92 +585,26 @@ function handleFormSubmit(event) {
         return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
     }
 
-    // Validar apenas required visíveis (inclui radios agrupados)
-    function validateVisibleRequired(form) {
-        const errors = [];
-        const radiosChecked = new Set();
-        const radioGroups = new Set();
-
-        form.querySelectorAll('[required]').forEach(field => {
-            if (!isVisible(field)) return; // ignorar campos escondidos
-
-            if (field.type === 'radio') {
-                radioGroups.add(field.name);
-                return;
-            }
-
-            if (field.type === 'checkbox') {
-                // checkbox required so must be checked
-                if (!field.checked) {
-                    errors.push({ element: field, message: 'Campo obrigatório' });
-                }
-                return;
-            }
-
-            const value = (field.value || '').toString().trim();
-            if (!value) {
-                errors.push({ element: field, message: 'Campo obrigatório' });
-                return;
-            }
-
-            // validações específicas
-            if (field.id === 'cpf' && value) {
-                if (!validarCPF(value)) errors.push({ element: field, message: 'CPF inválido' });
-            }
-            if (field.type === 'email' && value) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(value)) errors.push({ element: field, message: 'Email inválido' });
-            }
-        });
-
-        // validar grupos de radio required
-        radioGroups.forEach(name => {
-            // verificar se existe algum radio visível com este nome e se está marcado
-            const radios = Array.from(form.querySelectorAll(`input[name="${name}"]`)).filter(isVisible);
-            if (radios.length === 0) return; // nenhum visível -> ignorar
-            const checked = form.querySelector(`input[name="${name}"]:checked`);
-            if (!checked) {
-                const first = radios[0];
-                errors.push({ element: first, message: 'Escolha uma opção' });
-            }
-        });
-
-        if (errors.length > 0) {
-            // criar banner
-            const banner = document.createElement('div');
-            banner.className = 'form-error-banner';
-            banner.innerHTML = `<strong>Por favor corrija os itens abaixo:</strong>`;
-            const list = document.createElement('ol');
-            errors.forEach(err => {
-                const li = document.createElement('li');
-                li.textContent = err.message;
-                list.appendChild(li);
-
-                if (err.element) {
-                    try {
-                        const container = err.element.closest('.form-group') || err.element.parentElement;
-                        if (container) {
-                            const fieldErr = document.createElement('div');
-                            fieldErr.className = 'field-error';
-                            fieldErr.textContent = err.message;
-                            container.appendChild(fieldErr);
-                        }
-                        err.element.classList.add('invalid');
-                    } catch (e) { console.warn('Erro ao anexar mensagem inline', e); }
-                }
-            });
-            banner.appendChild(list);
-            form.insertBefore(banner, form.firstChild);
-            return false;
+    // Estratégia mais simples e confiável: temporariamente remover required de campos ocultos,
+    // usar validação nativa (checkValidity), e então restaurar os atributos required.
+    const requiredFields = Array.from(form.querySelectorAll('[required]'));
+    const hiddenRequired = [];
+    requiredFields.forEach(f => {
+        if (!isVisible(f)) {
+            hiddenRequired.push({ el: f, required: true });
+            f.removeAttribute('required');
         }
+    });
 
-        return true;
-    }
+    // agora usar validação nativa (só validará campos visíveis que ainda possuem required)
+    const validNative = form.checkValidity();
 
-    // usar validação visível (evita falsos-positivos em campos condicionais escondidos)
-    if (!validateVisibleRequired(form)) {
-        const firstInvalid = form.querySelector('.invalid');
-        if (firstInvalid) try { firstInvalid.focus(); } catch (e) {}
+    // restaurar required removidos
+    hiddenRequired.forEach(h => h.el.setAttribute('required', ''));
+
+    if (!validNative) {
+        // deixar o browser mostrar mensagens nativas
+        form.reportValidity();
         return false;
     }
 
