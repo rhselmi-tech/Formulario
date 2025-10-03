@@ -579,18 +579,21 @@ function createFormattedMessage(formData) {
     }
 
     // Nota final
-    // Consentimentos (incluir os dizeres e o estado CIENTE)
-    message += `\n📝 *CONSENTIMENTOS*\n`;
-    if (formData.consent_start_text) {
-        message += `• ${formData.consent_start_text}\n`;
-        message += `  CIENTE: ${formData.consent_start ? 'Sim' : 'Não'}\n`;
-    }
-    if (formData.consent_end_text) {
-        message += `• ${formData.consent_end_text}\n`;
-        message += `  CIENTE: ${formData.consent_end ? 'Sim' : 'Não'}\n`;
-    }
+    // Final format requested by user: bold declaration, bullet with initial consent text, LGPD text and CIENTE statuses
+    const defaultInitialConsent = 'Estou ciente de que o fornecimento das informações pessoais e profissionais solicitadas no presente formulario não implica, em hipótese alguma, garantia de contratação para a vaga pretendida.';
+    const defaultLGPD = 'Reconheço que tais dados serão utilizados exclusivamente para fins de análise curricular e avaliação de compatibilidade com o perfil buscado pela empresa, permanecendo a decisão final de contratação a critério exclusivo da contratante, nos termos da Lei nº 13.709/2018 – LGPD.';
 
-    message += `\n*Declaro que li e estou ciente das informações acima.*\n`;
+    const initialConsentText = formData.consent_start_text && formData.consent_start_text.trim() ? formData.consent_start_text.trim() : defaultInitialConsent;
+    const lgpdConsentText = formData.consent_end_text && formData.consent_end_text.trim() ? formData.consent_end_text.trim() : defaultLGPD;
+
+    message += `\n*Declaro que li e estou ciente das informações abaixo.*\n\n`;
+    // bullet with initial consent text
+    message += `- ${initialConsentText}\n\n`;
+    // LGPD text
+    message += `${lgpdConsentText}\n\n`;
+    // Show CIENTE status for both
+    message += `CIENTE (início): ${formData.consent_start ? 'Sim' : 'Não'}\n`;
+    message += `CIENTE (final): ${formData.consent_end ? 'Sim' : 'Não'}\n`;
 
     return message;
 }
