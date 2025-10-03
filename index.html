@@ -20,6 +20,18 @@
 
         <form class="curriculum-form" id="curriculumForm" action="#" method="POST">
             <!-- Informações da Vaga -->
+                <!-- Consentimento inicial -->
+                <section class="form-section consent-section" id="consentStartSection">
+                    <div class="consent-notice">
+                        <p>
+                            Estou ciente de que o fornecimento das informações pessoais e profissionais solicitadas no presente formulário não implica, em hipótese alguma, garantia de contratação para a vaga pretendida.
+                        </p>
+                        <label class="consent-label">
+                            <input type="checkbox" id="consent_start" name="consent_start" aria-required="true" required>
+                            <span class="consent-checkbox">CIENTE</span>
+                        </label>
+                    </div>
+                </section>
             <section class="form-section">
                 <h2>Informações da Vaga</h2>
                 
@@ -70,7 +82,7 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-1111111111111111111111111111111group">
+                    <div class="form-group">
                         <label for="cidade_rg">Cidade onde o RG foi emitido *</label>
                         <input type="text" id="cidade_rg" name="cidade_rg" required placeholder="Cidade">
                     </div>
@@ -351,6 +363,19 @@
                         <input type="checkbox" name="disponibilidade[]" value="turno_comercial">
                         <span class="checkmark"></span>
                         Turno Comercial (segunda à sábado)
+                    </label>
+                </div>
+            </section>
+
+            <!-- Consentimento final -->
+            <section class="form-section consent-section" id="consentEndSection">
+                <div class="consent-notice">
+                    <p>
+                        Reconheço que tais dados serão utilizados exclusivamente para fins de análise curricular e avaliação de compatibilidade com o perfil buscado pela empresa, permanecendo a decisão final de contratação a critério exclusivo da contratante, nos termos da Lei nº 13.709/2018 – LGPD.
+                    </p>
+                    <label class="consent-label">
+                        <input type="checkbox" id="consent_end" name="consent_end" aria-required="true" required>
+                        <span class="consent-checkbox">CIENTE</span>
                     </label>
                 </div>
             </section>
