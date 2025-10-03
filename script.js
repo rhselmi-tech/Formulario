@@ -573,13 +573,108 @@ function handleFormSubmit(event) {
 
     const form = document.getElementById('curriculumForm');
 
-    // Verificação HTML5
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    // Limpar erros visuais antigos
+    form.querySelectorAll('.form-error-banner').forEach(el => el.remove());
+    form.querySelectorAll('.field-error').forEach(el => el.remove());
+    form.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+
+    // Helper: visibilidade
+    function isVisible(el) {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
+    }
+
+    // Validar apenas required visíveis (inclui radios agrupados)
+    function validateVisibleRequired(form) {
+        const errors = [];
+        const radiosChecked = new Set();
+        const radioGroups = new Set();
+
+        form.querySelectorAll('[required]').forEach(field => {
+            if (!isVisible(field)) return; // ignorar campos escondidos
+
+            if (field.type === 'radio') {
+                radioGroups.add(field.name);
+                return;
+            }
+
+            if (field.type === 'checkbox') {
+                // checkbox required so must be checked
+                if (!field.checked) {
+                    errors.push({ element: field, message: 'Campo obrigatório' });
+                }
+                return;
+            }
+
+            const value = (field.value || '').toString().trim();
+            if (!value) {
+                errors.push({ element: field, message: 'Campo obrigatório' });
+                return;
+            }
+
+            // validações específicas
+            if (field.id === 'cpf' && value) {
+                if (!validarCPF(value)) errors.push({ element: field, message: 'CPF inválido' });
+            }
+            if (field.type === 'email' && value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) errors.push({ element: field, message: 'Email inválido' });
+            }
+        });
+
+        // validar grupos de radio required
+        radioGroups.forEach(name => {
+            // verificar se existe algum radio visível com este nome e se está marcado
+            const radios = Array.from(form.querySelectorAll(`input[name="${name}"]`)).filter(isVisible);
+            if (radios.length === 0) return; // nenhum visível -> ignorar
+            const checked = form.querySelector(`input[name="${name}"]:checked`);
+            if (!checked) {
+                const first = radios[0];
+                errors.push({ element: first, message: 'Escolha uma opção' });
+            }
+        });
+
+        if (errors.length > 0) {
+            // criar banner
+            const banner = document.createElement('div');
+            banner.className = 'form-error-banner';
+            banner.innerHTML = `<strong>Por favor corrija os itens abaixo:</strong>`;
+            const list = document.createElement('ol');
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err.message;
+                list.appendChild(li);
+
+                if (err.element) {
+                    try {
+                        const container = err.element.closest('.form-group') || err.element.parentElement;
+                        if (container) {
+                            const fieldErr = document.createElement('div');
+                            fieldErr.className = 'field-error';
+                            fieldErr.textContent = err.message;
+                            container.appendChild(fieldErr);
+                        }
+                        err.element.classList.add('invalid');
+                    } catch (e) { console.warn('Erro ao anexar mensagem inline', e); }
+                }
+            });
+            banner.appendChild(list);
+            form.insertBefore(banner, form.firstChild);
+            return false;
+        }
+
+        return true;
+    }
+
+    // usar validação visível (evita falsos-positivos em campos condicionais escondidos)
+    if (!validateVisibleRequired(form)) {
+        const firstInvalid = form.querySelector('.invalid');
+        if (firstInvalid) try { firstInvalid.focus(); } catch (e) {}
         return false;
     }
 
-    // Exigir consentimentos
+    // Exigir consentimentos (após validação dos campos visíveis)
     const consentStart = document.getElementById('consent_start');
     const consentEnd = document.getElementById('consent_end');
     if (!consentStart || !consentStart.checked || !consentEnd || !consentEnd.checked) {
@@ -587,33 +682,15 @@ function handleFormSubmit(event) {
         return false;
     }
 
-    // Coletar dados
+    // Coletar dados e enviar
     const formData = collectFormData();
-
-    // Criar mensagem (mantém formatação da função existente)
     let message;
-    try {
-        message = createFormattedMessage(formData);
-    } catch (err) {
-        alert('Erro ao preparar a mensagem: ' + (err.message || err));
-        return false;
-    }
+    try { message = createFormattedMessage(formData); } catch (err) { alert('Erro ao preparar a mensagem: ' + (err.message || err)); return false; }
 
-    // Número destino: +55 19 97123-8643 -> 5519971238643
     const phoneNumber = '5519971238643';
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-    // Mostra estado de loading e redireciona diretamente
-    try {
-        showLoadingState(true);
-    } catch (e) { /* ignore if not present */ }
-
-    try {
-        window.location.href = url;
-    } catch (e) {
-        try { window.open(url, '_blank'); } catch (e2) { /* ignore */ }
-    }
-
+    try { showLoadingState(true); } catch (e) {}
+    try { window.location.href = url; } catch (e) { try { window.open(url, '_blank'); } catch (e2) {} }
     return true;
 }
 
