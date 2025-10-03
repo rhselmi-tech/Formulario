@@ -484,6 +484,13 @@ function createFormattedMessage(formData) {
 
     let message = `👋 *Olá! Sou ${nome} e gostaria de me candidatar para uma vaga no Pastifício Selmi*\n\n`;
 
+    // Aviso inicial (consentimento do início) — incluir no topo do currículo
+    const defaultConsentStart = `Selmi: Estou ciente de que o fornecimento das informações pessoais e profissionais solicitadas no presente formulario não implica, em hipótese alguma, garantia de contratação para a vaga pretendida.`;
+    const consentStartText = (formData.consent_start_text && formData.consent_start_text.trim()) ? formData.consent_start_text.trim() : defaultConsentStart;
+    message += `🛡️ *AVISO INICIAL*\n`;
+    message += `• ${consentStartText}\n`;
+    message += `  CIENTE: ${formData.consent_start ? 'Sim' : 'Não'}\n\n`;
+
     // Dados pessoais
     message += `👤 *DADOS PESSOAIS*\n`;
     message += `• Nome Completo: ${nome}\n`;
