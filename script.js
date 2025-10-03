@@ -310,6 +310,16 @@ function collectFormData() {
     if (nomeField) {
         data.nome_completo = nomeField.value.trim();
     }
+
+    // Coletar consentimentos (estado das caixas e texto dos dizeres)
+    const consentStartCheckbox = document.getElementById('consent_start');
+    const consentEndCheckbox = document.getElementById('consent_end');
+    data.consent_start = !!(consentStartCheckbox && consentStartCheckbox.checked);
+    data.consent_end = !!(consentEndCheckbox && consentEndCheckbox.checked);
+    const consentStartTextEl = document.querySelector('#consentStartSection .consent-notice p');
+    const consentEndTextEl = document.querySelector('#consentEndSection .consent-notice p');
+    data.consent_start_text = consentStartTextEl ? consentStartTextEl.textContent.trim() : '';
+    data.consent_end_text = consentEndTextEl ? consentEndTextEl.textContent.trim() : '';
     
     // Coletar outros campos importantes diretamente (INCLUINDO whatsapp)
     const fieldsToCollect = [
@@ -562,7 +572,18 @@ function createFormattedMessage(formData) {
     }
 
     // Nota final
-    message += `*Declaro que li e estou ciente das informações acima.*\n`;
+    // Consentimentos (incluir os dizeres e o estado CIENTE)
+    message += `\n📝 *CONSENTIMENTOS*\n`;
+    if (formData.consent_start_text) {
+        message += `• ${formData.consent_start_text}\n`;
+        message += `  CIENTE: ${formData.consent_start ? 'Sim' : 'Não'}\n`;
+    }
+    if (formData.consent_end_text) {
+        message += `• ${formData.consent_end_text}\n`;
+        message += `  CIENTE: ${formData.consent_end ? 'Sim' : 'Não'}\n`;
+    }
+
+    message += `\n*Declaro que li e estou ciente das informações acima.*\n`;
 
     return message;
 }
