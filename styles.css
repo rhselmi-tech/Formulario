@@ -1219,3 +1219,78 @@ body {
     }
 }
 
+/* Print styles: ensure consent text and checkbox print together and show checked state visibly */
+@media print {
+    /* Force readable colors on print */
+    body, .container, .curriculum-form, .form-section, .consent-section {
+    color: #000 !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    }
+
+    /* Place consent text and the CIENTE box side-by-side when printing */
+    .consent-notice {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 12px !important;
+        align-items: flex-start !important;
+        padding: 0 !important;
+        margin: 6px 0 !important;
+    }
+
+    .consent-notice p {
+        flex: 1 1 auto !important;
+        color: #000 !important;
+        margin: 0 !important;
+    }
+
+    /* Hide the native checkbox control in print and render a visual checkbox with the state */
+    .consent-label input[type="checkbox"] {
+        /* keep the input functional but visually hide it for print */
+        width: 0.6em !important;
+        height: 0.6em !important;
+        opacity: 0 !important;
+        position: relative !important;
+        margin: 0 !important;
+    }
+
+    /* Use the span to show an explicit checkbox symbol and the word CIENTE */
+    .consent-checkbox {
+        font-weight: 700 !important;
+        color: #000 !important;
+        background: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    /* default unchecked symbol */
+    .consent-label input[type="checkbox"] + .consent-checkbox::before {
+        content: "☐ ";
+        font-size: 1.05em;
+        margin-right: 6px;
+    }
+
+    /* checked symbol when printed */
+    .consent-label input[type="checkbox"]:checked + .consent-checkbox::before {
+        content: "☑ ";
+        font-size: 1.05em;
+        margin-right: 6px;
+    }
+
+    /* Make sure consent section does not break across pages */
+    .consent-section {
+        page-break-inside: avoid !important;
+    }
+
+    /* Simplify form visuals for print */
+    .form-actions, .btn-add, .btn-remove, .whatsapp-instructions, .save-notification {
+        display: none !important;
+    }
+
+    /* Ensure labels and values are clearly printed */
+    .form-group label, .form-group input, .form-group textarea, .form-group select {
+        color: #000 !important;
+    }
+}
+
