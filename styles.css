@@ -378,6 +378,78 @@ body {
     font-size: 0.9rem;
 }
 
+/* Consent sections (start and end of form) */
+.consent-section {
+    background: #fff8e1;
+    border: 2px solid #ffecb3;
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin: 10px 30px;
+}
+
+.consent-notice p {
+    color: #5d4037;
+    margin-bottom: 12px;
+    font-size: 0.98rem;
+}
+
+.consent-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.consent-label input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.consent-checkbox {
+    font-weight: 700;
+    color: #3e2723;
+    background: #fff3e0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ffe0b2;
+}
+
+.consent-error {
+    margin-top: 10px;
+    color: #b71c1c;
+    background: #ffebee;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ffcdd2;
+    font-weight: 600;
+}
+
+/* Erros inline por campo */
+.field-error {
+    margin-top: 8px;
+    color: #7f1d1d;
+    background: #fff0f0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ffd6d6;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Banner de erro no topo do formulário */
+.form-error-banner {
+    background: linear-gradient(135deg, #ffefef, #ffe6e6);
+    border: 2px solid #ffb3b3;
+    color: #7f1d1d;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 0 0 16px 0;
+}
+
+.invalid {
+    outline: 2px solid rgba(183, 28, 28, 0.12);
+    box-shadow: 0 0 0 3px rgba(255, 205, 210, 0.2);
+}
+
 .steps {
     margin: 20px 0;
 }
