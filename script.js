@@ -79,6 +79,24 @@ function toggleVeiculoField() {
     }
 }
 
+// Função para mostrar/ocultar campo de apartamento
+function toggleApartamentoField() {
+    const possui = document.getElementById('possui_apartamento');
+    const aptField = document.getElementById('apartamentoField');
+
+    if (possui && possui.checked) {
+        aptField.style.display = 'block';
+        document.getElementById('numero_apartamento').required = true;
+    } else {
+        aptField.style.display = 'none';
+        const numApt = document.getElementById('numero_apartamento');
+        if (numApt) {
+            numApt.required = false;
+            numApt.value = '';
+        }
+    }
+}
+
 // Máscaras para campos
 function formatCPF(cpf) {
     cpf = cpf.replace(/\D/g, '');
@@ -323,11 +341,13 @@ function collectFormData() {
     
     // Coletar outros campos importantes diretamente (INCLUINDO whatsapp)
     const fieldsToCollect = [
-        'email', 'telefone', 'whatsapp', 'endereco', 'cpf', 'rg', 'cidade_rg', 'data_nascimento', 'pis', 
+        'email', 'telefone', 'whatsapp', 'cpf', 'rg', 'cidade_rg', 'data_nascimento', 'pis', 
         'cidade_nascimento', 'estado_civil', 'tem_pai', 'nome_pai', 'nome_mae', 
         'escolaridade', 'vaga_especifica', 'qual_vaga',
         'parente_empresa', 'nome_parente', 'possui_cnh', 'categoria_cnh',
-        'veiculo_proprio', 'tipo_veiculo', 'outras_informacoes'
+        'veiculo_proprio', 'tipo_veiculo', 'outras_informacoes',
+        // novos campos de endereço
+        'rua', 'numero_casa', 'bairro', 'cidade', 'possui_apartamento', 'numero_apartamento'
     ];
     
     fieldsToCollect.forEach(fieldName => {
@@ -521,6 +541,20 @@ function createFormattedMessage(formData) {
     if (formData.nome_mae) message += `👩‍👦 Nome da Mãe: ${formData.nome_mae}\n`;
 
     message += `\n`;
+
+    // Montar endereço a partir dos campos separados, se existirem
+    if (formData.rua || formData.numero_casa || formData.bairro || formData.cidade) {
+        let enderecoParts = [];
+        if (formData.rua) enderecoParts.push(formData.rua);
+        if (formData.numero_casa) enderecoParts.push('nº ' + formData.numero_casa);
+        if (formData.bairro) enderecoParts.push(formData.bairro);
+        if (formData.cidade) enderecoParts.push(formData.cidade);
+        let enderecoFormatado = enderecoParts.join(' - ');
+        if (formData.possui_apartamento === 'sim' && formData.numero_apartamento) {
+            enderecoFormatado += `, Apt ${formData.numero_apartamento}`;
+        }
+        message += `🏠 Endereço: ${enderecoFormatado}\n\n`;
+    }
 
     // Vaga e escolaridade
     message += `🎯 *VAGA DE INTERESSE*\n`;
@@ -910,6 +944,8 @@ function loadProgress() {
             // Atualizar campos condicionais
             toggleVagaField();
             toggleParenteField();
+            // Restaurar campo de apartamento conforme savedData
+            toggleApartamentoField();
         } catch (e) {
             console.log('Erro ao carregar progresso salvo:', e);
         }
@@ -1248,3 +1284,4 @@ document.addEventListener('DOMContentLoaded', function() {
     setupValidation();
     setupConsentValidation();
 });
+
