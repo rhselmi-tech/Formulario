@@ -60,13 +60,44 @@
                 <h2>Dados Pessoais</h2>
                 
                 <div class="form-group">
-                    <label for="nome_completo">Nome completo (igual no RG) *</label>
+                    <label for="nome_completo">Nome completo (igual no RG) </label>
                     <input type="text" id="nome_completo" name="nome_completo" required placeholder="Nome completo">
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rua">Rua</label>
+                        <input type="text" id="rua" name="rua" required placeholder="Nome da rua">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero_casa">Número da casa</label>
+                        <input type="text" id="numero_casa" name="numero_casa" required placeholder="Número">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bairro">Bairro</label>
+                        <input type="text" id="bairro" name="bairro" placeholder="Bairro">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cidade">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" required placeholder="Cidade">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label for="endereco">Endereço completo (rua, número da casa, bairro, cidade) *</label>
-                    <textarea id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade"></textarea>
+                    <label class="checkbox-label" style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="possui_apartamento" name="possui_apartamento" value="sim" onchange="toggleApartamentoField()">
+                        Possui número de apartamento?
+                    </label>
+                </div>
+
+                <div class="form-group" id="apartamentoField" style="display: none;">
+                    <label for="numero_apartamento">Número do apartamento</label>
+                    <input type="text" id="numero_apartamento" name="numero_apartamento" placeholder="Número do apartamento">
                 </div>
 
                 <div class="form-row">
@@ -76,19 +107,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="rg">Número do RG *</label>
+                        <label for="rg">Número do RG </label>
                         <input type="text" id="rg" name="rg" required placeholder="00.000.000-0">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="cidade_rg">Cidade onde o RG foi emitido *</label>
+                        <label for="cidade_rg">Cidade onde o RG foi emitido</label>
                         <input type="text" id="cidade_rg" name="cidade_rg" required placeholder="Cidade">
                     </div>
 
                     <div class="form-group">
-                        <label for="data_nascimento">Data de nascimento *</label>
+                        <label for="data_nascimento">Data de nascimento </label>
                         <input type="date" id="data_nascimento" name="data_nascimento" required>
                     </div>
                 </div>
@@ -100,13 +131,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="cidade_nascimento">Cidade e estado em que nasceu *</label>
+                        <label for="cidade_nascimento">Cidade e estado em que nasceu </label>
                         <input type="text" id="cidade_nascimento" name="cidade_nascimento" required placeholder="Cidade, Estado">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Estado civil *</label>
+                    <label>Estado civil </label>
                     <select name="estado_civil" required>
                         <option value="">Selecione...</option>
                         <option value="solteiro">Solteiro(a)</option>
@@ -119,7 +150,7 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Nome do pai (igual no RG) *</label>
+                        <label>Nome do pai (igual no RG) </label>
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="tem_pai" value="sim" onchange="togglePaiField()" required>
@@ -136,7 +167,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nome_mae">Nome da mãe (igual no RG) *</label>
+                        <label for="nome_mae">Nome da mãe (igual no RG) </label>
                         <input type="text" id="nome_mae" name="nome_mae" required placeholder="Nome da mãe">
                     </div>
                 </div>
@@ -148,23 +179,23 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="telefone">Telefone para contato (com DDD) *</label>
+                        <label for="telefone">Telefone para contato (com DDD) </label>
                         <input type="tel" id="telefone" name="telefone" required placeholder="(00) 0000-0000 ou (00) 00000-0000">
                     </div>
                     
                     <div class="form-group">
-                        <label for="whatsapp">WhatsApp (com DDD) *</label>
+                        <label for="whatsapp">WhatsApp (com DDD) </label>
                         <input type="tel" id="whatsapp" name="whatsapp" required placeholder="(00) 00000-0000">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">E-mail para contato *</label>
+                    <label for="email">E-mail para contato </label>
                     <input type="email" id="email" name="email" required placeholder="seuemail@exemplo.com">
                 </div>
 
                 <div class="form-group">
-                    <label>Tem parente ou conhecido que trabalhe na Selmi, Macarrão Galo ou Todeschini? *</label>
+                    <label>Tem parente ou conhecido que trabalhe na Selmi, Macarrão Galo ou Todeschini? </label>
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="parente_empresa" value="sim" onchange="toggleParenteField()" required>
@@ -242,7 +273,7 @@
                 <h2>Escolaridade</h2>
                 
                 <div class="form-group">
-                    <label>Até qual série você estudou com histórico escolar? *</label>
+                    <label>Até qual série você estudou com histórico escolar? </label>
                     <select name="escolaridade" required>
                         <option value="">Selecione...</option>
                         <option value="fundamental_completo">Fundamental completo (mínimo)</option>
@@ -394,5 +425,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
