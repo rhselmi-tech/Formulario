@@ -184,6 +184,97 @@ function validarCPF(cpf) {
     return true;
 }
 
+// Heurística simples para validar se o nome parece completo (nome + sobrenome)
+function nameLooksValid(name) {
+    if (!name) return false;
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    return parts.length >= 2 && name.trim().length >= 5;
+}
+
+// Verifica opcionalmente via API externa se CPF e nome conferem.
+// Para ativar, defina globalmente antes de enviar: window.cpfNameApiConfig = { url: 'https://api.exemplo/verify', method: 'POST', headers: { 'Authorization': 'Bearer ...' } }
+async function verifyCpfNameWithApi(cpfDigits, name) {
+    try {
+        const cfg = window.cpfNameApiConfig;
+        if (!cfg || !cfg.url) return null; // API não configurada
+
+        const res = await fetch(cfg.url, {
+            method: cfg.method || 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, cfg.headers || {}),
+            body: JSON.stringify({ cpf: cpfDigits, nome: name })
+        });
+        if (!res.ok) {
+            console.warn('CPF-Nome API retornou status', res.status);
+            return null;
+        }
+        const json = await res.json();
+        // Aceitar resposta com { match: true } ou { match: 'yes' }
+        if (json && (json.match === true || json.match === 'yes' || json.match === 'sim')) return true;
+        if (json && (json.match === false || json.match === 'no' || json.match === 'nao')) return false;
+        // Caso diferente, tentar comparar nome retornado
+        if (json && json.nome) {
+            const returned = json.nome.toString().toLowerCase().trim();
+            const given = name.toString().toLowerCase().trim();
+            return returned === given || returned.startsWith(given) || given.startsWith(returned);
+        }
+        return null;
+    } catch (e) {
+        console.warn('Erro ao chamar verifyCpfNameWithApi:', e);
+        return null;
+    }
+}
+
+// Validação que compara CPF e Nome. Retorna true se tudo OK, false caso contrário.
+async function validateCpfAndNameFields() {
+    const cpfField = document.getElementById('cpf');
+    const nomeField = document.getElementById('nome_completo');
+    if (!cpfField || !nomeField) return true; // nada a validar aqui
+
+    // limpar mensagens anteriores
+    cpfField.setCustomValidity('');
+    nomeField.setCustomValidity('');
+
+    const cpfRaw = (cpfField.value || '').toString().trim();
+    const nomeRaw = (nomeField.value || '').toString().trim();
+
+    if (!cpfRaw) {
+        cpfField.setCustomValidity('CPF é obrigatório');
+        cpfField.reportValidity();
+        return false;
+    }
+    if (!nomeRaw) {
+        nomeField.setCustomValidity('Nome é obrigatório');
+        nomeField.reportValidity();
+        return false;
+    }
+
+    // validar CPF sintaticamente
+    if (!validarCPF(cpfRaw)) {
+        cpfField.setCustomValidity('CPF inválido');
+        cpfField.reportValidity();
+        return false;
+    }
+
+    // heurística mínima para o nome
+    if (!nameLooksValid(nomeRaw)) {
+        nomeField.setCustomValidity('Informe nome completo (nome e sobrenome)');
+        nomeField.reportValidity();
+        return false;
+    }
+
+    // se houver API configurada, tentar verificação remota
+    const cpfDigits = cpfRaw.replace(/\D/g, '');
+    const apiResult = await verifyCpfNameWithApi(cpfDigits, nomeRaw);
+    if (apiResult === false) {
+        // API disse que não conferem
+        cpfField.setCustomValidity('CPF e nome não conferem (verificação externa)');
+        cpfField.reportValidity();
+        return false;
+    }
+    // se apiResult === true ou null -> não bloquear (true para OK, null = não conclusivo)
+    return true;
+}
+
 // Validação em tempo real
 function setupValidation() {
     const form = document.getElementById('curriculumForm');
@@ -633,7 +724,7 @@ function createFormattedMessage(formData) {
 }
 
 // Handler simples e direto para submit: valida consentimentos, coleta dados, formata mensagem e redireciona ao WhatsApp do RH
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     if (event && typeof event.preventDefault === 'function') event.preventDefault();
 
     const form = document.getElementById('curriculumForm');
@@ -679,6 +770,15 @@ function handleFormSubmit(event) {
     if (!consentStart || !consentStart.checked || !consentEnd || !consentEnd.checked) {
         alert('Você precisa marcar as caixas "CIENTE" no início e no final do formulário para prosseguir.');
         return false;
+    }
+
+    // Validar relação CPF <-> Nome (assíncrono se API configurada)
+    try {
+        const cpfNameOk = await validateCpfAndNameFields();
+        if (!cpfNameOk) return false;
+    } catch (e) {
+        console.warn('Erro durante verificação CPF-Nome:', e);
+        // continuar se a verificação falhar por erro técnico
     }
 
     // Coletar dados e enviar
@@ -906,6 +1006,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateRemoveButtons('course');
     
     console.log('Formulário de currículo inicializado com sucesso!');
+    // Validação nome x CPF em blur para feedback imediato
+    const cpfField = document.getElementById('cpf');
+    const nomeField = document.getElementById('nome_completo');
+    if (cpfField) cpfField.addEventListener('blur', () => { validateCpfAndNameFields().catch(()=>{}); });
+    if (nomeField) nomeField.addEventListener('blur', () => { validateCpfAndNameFields().catch(()=>{}); });
 });
 
 // Função para salvar progresso no localStorage
