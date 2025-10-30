@@ -581,6 +581,32 @@ function formatPhoneForDisplay(digits) {
     return `+${digits}`;
 }
 
+// Formata data para DD/MM/AAAA a partir de uma string (aceita YYYY-MM-DD, ISO ou outros)
+function formatDateBR(dateStr) {
+    if (!dateStr) return '';
+    const s = dateStr.toString().trim();
+    // YYYY-MM-DD
+    const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+        return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+    }
+    // DD/MM/YYYY already
+    const brMatch = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (brMatch) return s;
+
+    // tentar parse genérico
+    const dt = new Date(s);
+    if (!isNaN(dt.getTime())) {
+        const day = String(dt.getDate()).padStart(2, '0');
+        const month = String(dt.getMonth() + 1).padStart(2, '0');
+        const year = dt.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // fallback: retornar original
+    return s;
+}
+
 // Função para criar mensagem formatada do WhatsApp
 function createFormattedMessage(formData) {
     if (!formData) throw new Error('formData não fornecido');
@@ -623,7 +649,10 @@ function createFormattedMessage(formData) {
         if (formData.cidade_rg) rgInfo += ` - ${formData.cidade_rg}`;
         message += `🪪 RG: ${rgInfo}\n`;
     }
-    if (formData.data_nascimento) message += `🎂 Data de Nascimento: ${formData.data_nascimento}\n`;
+    if (formData.data_nascimento) {
+        const dataNascFmt = formatDateBR(formData.data_nascimento);
+        message += `🎂 Data de Nascimento: ${dataNascFmt}\n`;
+    }
     if (formData.cidade_nascimento) message += `📍 Cidade de Nascimento: ${formData.cidade_nascimento}\n`;
     if (formData.estado_civil) message += `💍 Estado Civil: ${formData.estado_civil}\n`;
     if (formData.pis) message += `🧾 PIS: ${formData.pis}\n`;
@@ -1389,4 +1418,5 @@ document.addEventListener('DOMContentLoaded', function() {
     setupValidation();
     setupConsentValidation();
 });
+
 
